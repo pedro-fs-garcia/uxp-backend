@@ -1,0 +1,150 @@
+## 3️⃣ Configuração do banco de dados
+
+### 3.1 Sem Docker
+
+1. Certifique-se de que o PostgreSQL está rodando localmente.
+2. Crie o usuário e o banco (ou use os valores do `.env`):
+
+```sql
+CREATE USER urbanxp WITH PASSWORD 'supersecretpassword';
+CREATE DATABASE urbanxp_db OWNER urbanxp;
+```
+
+3. O banco estará pronto para receber migrações e tabelas.
+
+### 3.2 Com Docker
+
+1. Suba o banco via Docker Compose:
+
+```bash
+docker-compose up -d db
+```
+
+2. O PostgreSQL será criado automaticamente com os parâmetros definidos no Compose (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`).
+
+---
+
+## 4️⃣ Alembic – Fluxo de Migrações
+
+Alembic controla a **estrutura do banco** de forma versionada. Sempre que **alterar modelos** no SQLAlchemy, siga este fluxo.
+
+### 4.1 Criar nova migração
+
+```bash
+# Sem Docker
+alembic revision --autogenerate -m "descrição_da_mudança"
+
+# Com Docker
+docker-compose run --rm app alembic revision --autogenerate -m "descrição_da_mudança"
+```
+
+* `--autogenerate` compara os modelos atuais com o banco e gera o SQL necessário.
+
+### 4.2 Aplicar migrações
+
+```bash
+# Sem Docker
+alembic upgrade head
+
+# Com Docker
+docker-compose run --rm app alembic upgrade head
+```
+
+* Isso atualiza o banco para a **última versão registrada**.
+
+### 4.3 Reverter migração
+
+```bash
+# Sem Docker
+alembic downgrade -1
+
+# Com Docker
+docker-compose run --rm app alembic downgrade -1
+```
+
+* Volta uma versão no histórico, útil para testes.
+
+---
+
+## 5️⃣ Criando tabelas no modo desenvolvimento
+
+Em **desenvolvimento**, para agilizar o setup, estamos usando `Base.metadata.create_all()`.
+No FastAPI, isso pode ser feito via **lifespan event**:
+
+```python
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    if settings.ENVIRONMENT == 'development':
+        await create_db_if_not_exists()
+        from app.db import base
+        await create_tables()
+        yield
+        await engine.dispose()
+```
+
+> ⚠️ Em **produção**, use **somente Alembic**. Nunca confie em `create_all()`.
+
+---
+
+## 6️⃣ Importando todos os modelos automaticamente
+
+Para garantir que Alembic reconheça **todas as tabelas**, importe dinamicamente todos os modelos em `alembic/env.py`:
+
+```python
+import pkgutil
+import importlib
+import app.models
+
+for _, module_name, _ in pkgutil.iter_modules(app.models.__path__):
+    importlib.import_module(f"app.models.{module_name}")
+```
+
+* Isso evita a necessidade de atualizar manualmente o `__init__.py` do pacote `models`.
+
+---
+
+## 7️⃣ Passo a passo para novos desenvolvedores
+
+1. Clonar o repositório.
+2. Criar `.env` com as variáveis de ambiente.
+3. **Com Docker:**
+
+```bash
+docker-compose up -d db
+docker-compose run --rm app alembic upgrade head
+docker-compose up --build app
+```
+
+4. **Sem Docker:**
+
+```bash
+# criar virtualenv
+python -m venv venv
+source venv/bin/activate
+
+# instalar dependências
+pip install -r requirements.txt
+
+# criar banco se necessário
+# criar usuário e DB no PostgreSQL
+
+# aplicar migrações
+alembic upgrade head
+
+# rodar aplicação
+uvicorn app.main:app --reload
+```
+
+5. **Sempre que alterar modelos:**
+
+   * Gerar nova migração (`alembic revision --autogenerate -m "descrição"`)
+   * Aplicar migração (`alembic upgrade head`)
+
+---
+
+## 8️⃣ Dicas finais
+
+* Mantenha o `.env` atualizado e consistente entre devs.
+* Evite usar `create_all()` em produção.
+* Use Alembic para versionar todas as alterações no banco.
+* Garanta que todos os modelos estão importados antes de gerar migração.

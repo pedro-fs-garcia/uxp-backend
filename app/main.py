@@ -1,23 +1,49 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+
 from app.api.v1.api import api_router
 from app.core.config import settings
+from app.db.session import create_db_if_not_exists, create_tables
+from app.db.session import engine
+from app.core import logger
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # ---- Startup ----
+    logger.info("🚀 Iniciando aplicação")
+
+    if settings.ENVIRONMENT != "production":
+        await create_db_if_not_exists()
+        from app.db import base
+        await create_tables()
+
+    # ponto onde a aplicação roda
+    yield
+
+    # ---- Shutdown ----
+    logger.info("🛑 Encerrando aplicação")
+    if settings.ENVIRONMENT != "production":
+        await engine.dispose()
+    logger.stop()
+
 
 app = FastAPI(
     title="UrbanXP API",
     description="Backend para o concierge inteligente de experiências e roteiros.",
-    version="0.1.0"
+    version="0.1.0",
+    lifespan=lifespan,
 )
 
 
 @app.exception_handler(Exception)
 async def global_exception_handler(req: Request, exc: Exception):
-
     return JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
 
 
-# Inclui o router principal da API com o prefixo /api/v1
 app.include_router(api_router, prefix="/api/v1")
+
 
 @app.get("/", tags=["Health Check"])
 def read_root():

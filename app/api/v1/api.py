@@ -1,13 +1,16 @@
 from typing import Dict
 from fastapi import APIRouter, Response
 from fastapi.responses import JSONResponse
-from app.api.v1.endpoints import auth
+from app.api.v1.endpoints import auth, recommendations
 from app.core.config import settings
 
 api_router = APIRouter()
 
 # Inclui as rotas dos outros módulos
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
+
+api_router.include_router(recommendations.router, prefix='/recommendations', tags=['recommendations'])
+
 
 @api_router.get('/')
 async def root() -> Dict[str,str]:
