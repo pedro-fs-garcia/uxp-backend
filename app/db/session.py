@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.core.config import settings
 from app.db.base_class import Base
+from app.core import logger
 
 engine = create_async_engine(settings.DATABASE_URL, echo=True, future=True)
 
@@ -30,7 +31,7 @@ async def create_db_if_not_exists():
     for _ in range(10):
         try:
             engine = create_async_engine(settings.DATABASE_SERVER_URL, isolation_level="AUTOCOMMIT")
-            print('created_engine')
+            logger.info(f"Tentando conectar ao banco de dados {settings.POSTGRES_DB}...")
             async with engine.connect() as conn:
                 db_name = settings.POSTGRES_DB
                 result = await conn.execute(
@@ -38,19 +39,23 @@ async def create_db_if_not_exists():
                     {"name": db_name}
                 )
                 if not result.scalar():
+                    logger.info(f"Banco de dados {settings.POSTGRES_DB} não encontrado. Criando banco de dados...")
                     await conn.execute(text(f'CREATE DATABASE "{db_name}" OWNER {settings.POSTGRES_USER}'))
+                    logger.info(f"Banco de dados {settings.POSTGRES_DB} criado com sucesso.")
             return
         except Exception as e:
             print(e)
+            logger.error(f"Banco de dados {settings.POSTGRES_DB} não encontrado. Tentativa {_+1}. Tentando novamente...")
             await asyncio.sleep(1)
 
 
 async def create_tables():
-    print(Base.metadata.tables.keys())
+    logger.info(f"Criando tabelas no banco de dados {settings.POSTGRES_DB}...")
+    logger.info(f"Tabelas sendo criadas: {Base.metadata.tables.keys()}...")
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.drop_all)
             await conn.run_sync(Base.metadata.create_all)
-            print("tabelas criadas com sucesso")
+            logger.info("tabelas criadas com sucesso")
     except Exception as e:
-        print(e)
+        logger.error(f"Erro ao criar tabelas no banco de dados: {str(e)}")

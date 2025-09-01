@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.schemas.recommendation import Place, RecommendationRequest, RecommendationResponse
+from app.services.local_search import urbanxp_search
 from app.services.recommendation_service import search_google_places
 
 
@@ -17,7 +18,7 @@ async def get_recommendations(
         Place(name="Bar de Teste", address="Avenida Exemplo, 456", rating=4.8, google_place_id="id_ficticio_2")
     ]
 
-    found_places = search_google_places(req)
+    found_places = await urbanxp_search(db, req)
 
     if not found_places:
         raise HTTPException(status_code=404, detail="Nenhum lugar encontrado com os critérios fornecidos.")
