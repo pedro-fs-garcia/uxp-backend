@@ -4,9 +4,9 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
 
     # Variáveis do Banco de Dados
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
+    POSTGRES_USER: str = 'postgres'
+    POSTGRES_PASSWORD: str = 'postgres'
+    POSTGRES_DB: str = 'urbanxp_db'
     POSTGRES_HOST:str = "db"
     POSTGRES_PORT: int = 5432
 

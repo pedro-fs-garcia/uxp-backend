@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.v1.api import api_router
 from app.core.config import settings
+from app.db.seed_db import seed_db
 from app.db.session import create_db_if_not_exists, create_tables
 from app.db.session import engine
 from app.core import logger
@@ -18,6 +19,7 @@ async def lifespan(app: FastAPI):
         await create_db_if_not_exists()
         from app.db import base
         await create_tables()
+        await seed_db()
 
     # ponto onde a aplicação roda
     yield
