@@ -5,14 +5,16 @@ from sqlalchemy.orm import selectinload
 
 from app.models.filter_options import PlaceType, Tag
 from app.models.places import Place
-from app.schemas.recommendation import RecommendationRequest
+from app.schemas.place_schemas import PlaceSchema
+from app.schemas.recommendation_schemas import RecommendationRequest
 
-async def urbanxp_search(db: AsyncSession, criteria:RecommendationRequest) -> List[Place]:
+async def urbanxp_search(db: AsyncSession, criteria:RecommendationRequest) -> List[PlaceSchema]:
     query = select(Place).options(
         selectinload(Place.place_types),
         selectinload(Place.tags)
     )
-    query = query.where(Place.city.ilike(f"%{criteria.city}%"))
+    if criteria.city:
+        query = query.where(Place.city.ilike(f"%{criteria.city}%"))
 
     if criteria.types:
         query = query.join(Place.place_types).where(PlaceType.slug.in_(criteria.types)).distinct()

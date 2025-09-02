@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import UUID, Column, ForeignKey, String, Table, Text
+from sqlalchemy import UUID, Column, ForeignKey, Integer, String, Table, Text
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 
@@ -25,6 +25,7 @@ class Place (Base):
     city = Column(String, index=True, nullable=False)
     description = Column(Text, nullable=True)
     google_place_id = Column(String, nullable=True, unique=True)
+    rating = Column(Integer, nullable=True)
 
     tags = relationship(
         "Tag",

@@ -16,11 +16,11 @@ router = APIRouter()
 async def get_all_place_types(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(PlaceType).order_by(PlaceType.name))
     place_types = result.scalars().all()
-    # if not place_types:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_404_NOT_FOUND,
-    #         detail="Nenhum tipo de local encontrado."
-    #     )
+    if not place_types:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Nenhum tipo de local encontrado."
+        )
     return place_types
 
 

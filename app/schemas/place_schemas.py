@@ -1,6 +1,8 @@
-from typing import List
-from sqlalchemy import UUID
+from typing import List, Optional
+from uuid import UUID
 from app.schemas import BaseSchema
+from app.schemas.place_types_schemas import PlaceTypeSchema
+from app.schemas.tag_schemas import TagSchema
 
 
 class PlaceSchema(BaseSchema):
@@ -8,9 +10,21 @@ class PlaceSchema(BaseSchema):
     name : str
     address : str
     city : str
-    description : str
-    google_place_id : str
+    description : str | None = None
+    google_place_id : str | None = None
+    rating: int | None = None
 
-    tags : List
+    tags : Optional[List[TagSchema]] | None = None
 
-    place_types : List
+    place_types : Optional[List[PlaceTypeSchema]] | None = None
+
+
+class PlaceCreateDto(BaseSchema):
+    name : str
+    address : str
+    city : str
+    description : str | None = None
+    google_place_id : str | None = None
+    rating: int | None = None
+    tags_slugs : List[str] | None = None
+    place_types_slugs : List[str] | None = None
