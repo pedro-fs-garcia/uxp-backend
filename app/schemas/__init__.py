@@ -1,6 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 class BaseSchema(BaseModel):
-    model_config = {
-        "orm_mode": True
-    }
+    model_config = ConfigDict(from_attributes=True)
