@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
 from app.db.session import get_db
-from app.models.filter_options import Tag
+from app.models.tag import Tag
 from app.schemas.tag_schemas import TagCreateDto, TagSchema, TagUpdateDto
 
 
@@ -14,7 +14,7 @@ router = APIRouter()
 
 @router.get("/", response_model=List[TagSchema])
 async def get_all(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Tag).order_by(Tag.name))
+    result = await db.execute(select(Tag).order_by(Tag.label_pt))
     result = result.scalars().all()
     return result
 

@@ -7,7 +7,7 @@ from app.schemas.tag_schemas import TagSchema
 
 class PlaceSchema(BaseSchema):
     id : str | UUID
-    name : str
+    label : str
     address : str
     city : str
     description : str | None = None

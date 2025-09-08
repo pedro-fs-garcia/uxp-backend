@@ -4,6 +4,12 @@ from sqlalchemy.ext.declarative import declared_attr
 
 Base = declarative_base()
 
+class BaseModel(Base):
+    __abstract__ = True # não cria tabela
+    @classmethod
+    def classname(cls):
+        return cls.__name__
+
 
 class TimestampMixin:
     @declared_attr
@@ -11,7 +17,8 @@ class TimestampMixin:
         return Column(
             DateTime(timezone=True),
             server_default=func.now(),
-            nullable=False
+            nullable=False,
+            name='created_at',
         )
     
     @declared_attr
@@ -20,5 +27,6 @@ class TimestampMixin:
             DateTime(timezone=True),
             server_default=func.now(),
             onupdate=func.now(),
-            nullable=False
+            nullable=False,
+            name='updated_at',
         )

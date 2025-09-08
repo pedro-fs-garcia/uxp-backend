@@ -2,34 +2,35 @@ import asyncio
 
 from sqlalchemy import select
 from app.db.session import AsyncSessionLocal
-from app.models.filter_options import PlaceType, Tag
 from app.core import logger
-from app.models.places import Place
+from app.models.place import Place
+from app.models.place_type import PlaceType
+from app.models.tag import Tag
 
 
 places_types = [
-    {"name": "Restaurante", "slug": "restaurant"},
-    {"name": "Bar", "slug": "bar"},
-    {"name": "Café", "slug": "cafe"},
-    {"name": "Cinema", "slug": "movie_theater"},
-    {"name": "Teatro", "slug": "theater"},
-    {"name": "Parque", "slug": "park"},
-    {"name": "Show", "slug": "concert"},
-    {"name": "Exposição de Arte", "slug": "art_gallery"},
+    {"label_pt": "Restaurante", "key": "restaurant"},
+    {"label_pt": "Bar", "key": "bar"},
+    {"label_pt": "Café", "key": "cafe"},
+    {"label_pt": "Cinema", "key": "movie_theater"},
+    {"label_pt": "Teatro", "key": "theater"},
+    {"label_pt": "Parque", "key": "park"},
+    {"label_pt": "Show", "key": "concert"},
+    {"label_pt": "Exposição de Arte", "key": "art_gallery"},
 ]
 
 tags_data = [
-    {"name": "Música ao Vivo", "slug": "musica-ao-vivo"},
-    {"name": "Pet Friendly", "slug": "pet-friendly"},
-    {"name": "Ambiente Familiar", "slug": "ambiente-familiar"},
-    {"name": "Ar Livre", "slug": "ar-livre"},
-    {"name": "Romântico", "slug": "romantico"},
-    {"name": "Bom para Grupos", "slug": "bom-para-grupos"},
+    {"label_pt": "Música ao Vivo", "key": "musica-ao-vivo"},
+    {"label_pt": "Pet Friendly", "key": "pet-friendly"},
+    {"label_pt": "Ambiente Familiar", "key": "ambiente-familiar"},
+    {"label_pt": "Ar Livre", "key": "ar-livre"},
+    {"label_pt": "Romântico", "key": "romantico"},
+    {"label_pt": "Bom para Grupos", "key": "bom-para-grupos"},
 ]
 
 place_data = [
     {
-        "name": "Amicci Anchieta",
+        "label": "Amicci Anchieta",
         "city": "São José dos Campos",
         "address": "Av. Anchieta, 342 - Jardim Esplanada",
         "description": "Cafeteria e confeitaria charmosa, ideal para um café da tarde ou um brunch.",
@@ -58,10 +59,10 @@ async def seed_db():
             tag_slugs = i.pop('tag_slugs')
             new_place = Place(**i)
 
-            place_types = await db.execute(select(PlaceType).filter(PlaceType.slug.in_(place_type_slugs)))
+            place_types = await db.execute(select(PlaceType).filter(PlaceType.key.in_(place_type_slugs)))
             place_types = place_types.scalars().all()
 
-            tags = await db.execute(select(Tag).filter(Tag.slug.in_(tag_slugs)))
+            tags = await db.execute(select(Tag).filter(Tag.key.in_(tag_slugs)))
             tags = tags.scalars().all()
 
             new_place.tags.extend(tags)

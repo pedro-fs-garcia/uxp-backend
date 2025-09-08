@@ -3,9 +3,9 @@ from app.schemas import BaseSchema
 
 
 class _PlaceTypeBase(BaseSchema):
-    name: str | None = None
-    slug: str | None = None
-    description: str | None = None
+    key: str | None = None
+    label_pt: str | None = None
+    description_pt: str | None = None
     icon_url: str | None = None
 
 
@@ -14,8 +14,8 @@ class PlaceTypeSchema(_PlaceTypeBase):
 
 
 class PlaceTypeCreateDto(_PlaceTypeBase):
-    name: str
-    slug: str
+    label_pt: str
+    key: str
 
 
 class PlaceTypeUpdateDto(_PlaceTypeBase):

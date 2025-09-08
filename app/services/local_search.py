@@ -3,8 +3,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.models.filter_options import PlaceType, Tag
-from app.models.places import Place
+from app.models.place import Place
+from app.models.place_type import PlaceType
+from app.models.tag import Tag
 from app.schemas.place_schemas import PlaceSchema
 from app.schemas.recommendation_schemas import GooglePlaceRequest
 
@@ -17,9 +18,9 @@ async def urbanxp_search(db: AsyncSession, criteria:GooglePlaceRequest) -> List[
         query = query.where(Place.city.ilike(f"%{criteria.city}%"))
 
     if criteria.types:
-        query = query.join(Place.place_types).where(PlaceType.slug.in_(criteria.types)).distinct()
+        query = query.join(Place.place_types).where(PlaceType.key.in_(criteria.types)).distinct()
     if criteria.keywords:
-        query = query.join(Place.tags).where(Tag.slug.in_(criteria.keywords)).distinct()
+        query = query.join(Place.tags).where(Tag.key.in_(criteria.keywords)).distinct()
     result = await db.execute(query)
     result = result.scalars().all()
     return result

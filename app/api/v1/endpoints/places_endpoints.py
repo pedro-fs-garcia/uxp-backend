@@ -5,8 +5,9 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.models.filter_options import PlaceType, Tag
-from app.models.places import Place
+from app.models.place import Place
+from app.models.place_type import PlaceType
+from app.models.tag import Tag
 from app.schemas.place_schemas import PlaceCreateDto, PlaceSchema
 
 
@@ -41,11 +42,11 @@ async def create(dto: PlaceCreateDto, db: AsyncSession = Depends(get_db)):
         tag_slugs = dto.pop('tag_slugs')
         new_place = Place(**dto)
         if types_slugs:
-            place_types = await db.execute(select(PlaceType).filter(PlaceType.slug.in_(types_slugs)))
+            place_types = await db.execute(select(PlaceType).filter(PlaceType.key.in_(types_slugs)))
             place_types = place_types.scalars().all()
             new_place.place_types.extend(place_types)
         if tag_slugs:
-            place_tags = await db.execute(select(Tag).filter(Tag.slug.in_(tag_slugs)))
+            place_tags = await db.execute(select(Tag).filter(Tag.key.in_(tag_slugs)))
             place_tags = place_tags.scalars().all()
             new_place.place_types.extend(place_tags)
         db.add(new_place)

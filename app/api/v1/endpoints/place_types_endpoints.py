@@ -5,7 +5,7 @@ from sqlalchemy import select
 from typing import List
 
 from app.db.session import get_db
-from app.models.filter_options import PlaceType
+from app.models.place_type import PlaceType
 from app.schemas.place_types_schemas import PlaceTypeCreateDto, PlaceTypeSchema, PlaceTypeUpdateDto
 
 
@@ -14,7 +14,7 @@ router = APIRouter()
 
 @router.get("/", response_model=List[PlaceTypeSchema])
 async def get_all_place_types(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(PlaceType).order_by(PlaceType.name))
+    result = await db.execute(select(PlaceType).order_by(PlaceType.label_pt))
     place_types = result.scalars().all()
     if not place_types:
         raise HTTPException(
@@ -49,7 +49,7 @@ async def create(dto: PlaceTypeCreateDto, db: AsyncSession = Depends(get_db)):
         if "unique" in str(e.orig).lower():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"PlaceType com slug '{new_place_type.slug}' já existe."
+                detail=f"PlaceType com slug '{new_place_type.key}' já existe."
             )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

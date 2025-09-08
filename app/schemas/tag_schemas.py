@@ -3,8 +3,8 @@ from app.schemas import BaseSchema
 
 
 class _TagBase(BaseSchema):
-    name: str | None = None
-    slug: str | None = None
+    label_pt: str | None = None
+    key: str | None = None
 
 
 class TagSchema(_TagBase):
@@ -12,8 +12,8 @@ class TagSchema(_TagBase):
 
 
 class TagCreateDto(_TagBase):
-    name: str
-    slug: str
+    label_pt: str
+    key: str
 
 
 class TagUpdateDto(_TagBase):
