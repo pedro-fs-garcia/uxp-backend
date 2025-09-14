@@ -3,7 +3,7 @@ from sqlalchemy import UUID, Column, Integer, String, Text
 from sqlalchemy.orm import relationship, declared_attr
 from app.db.base_class import BaseModel, TimestampMixin
 from app.db import TableName, PlaceColumn
-from app.models.relationship_tables import place_tag_map, place_type_map
+from app.models.relationship_tables import place_tag_map, place_type_map, place_category_map
 
 
 class Place(BaseModel, TimestampMixin):
@@ -57,4 +57,12 @@ class Place(BaseModel, TimestampMixin):
             TableName.Tag.name,
             secondary=place_tag_map,
             back_populates="places"
+        )
+
+    @declared_attr
+    def categories(cls):
+        return relationship(
+            TableName.Category.name,
+            secondary=place_category_map,
+            back_populates='places'
         )

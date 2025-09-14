@@ -1,10 +1,10 @@
 from __future__ import annotations
 import uuid
-from sqlalchemy import UUID, Column, String
+from sqlalchemy import UUID, Column, ForeignKey, String
 from sqlalchemy.orm import relationship
 from app.db.base_class import BaseModel, TimestampMixin
 from app.db import TableName
-from app.db.enums import TagColumn
+from app.db.enums import CategoryColumns, TagColumn
 from app.models.relationship_tables import place_tag_map
 
 
@@ -32,6 +32,16 @@ class Tag(BaseModel, TimestampMixin):
         unique=True, 
         index=True, 
         nullable=False
+    )
+    category_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey(f"{TableName.Category.value}.{CategoryColumns.ID.value}"),
+        nullable=True
+    )
+
+    category = relationship(
+        TableName.Category.name,
+        back_populates='tags'
     )
 
     places = relationship(
