@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.api import api_router
 from app.core.config import settings
@@ -38,6 +39,13 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # ou ["*"] para liberar todas
+    allow_credentials=True,
+    allow_methods=["*"],    # GET, POST, PUT, DELETE...
+    allow_headers=["*"],    # Content-Type, Authorization...
+)
 
 @app.exception_handler(Exception)
 async def global_exception_handler(req: Request, exc: Exception):
