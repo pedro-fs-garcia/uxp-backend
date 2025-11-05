@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.api import api_router
-from app.core.config import settings
+from app.core import settings
 from app.db.seed_db import seed_db
 from app.db.session import create_db_if_not_exists, create_tables
 from app.db.session import engine

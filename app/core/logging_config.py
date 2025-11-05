@@ -85,6 +85,3 @@ class AsyncLogger:
 
     def stop(self):
         self.listener.stop()
-
-
-logger = AsyncLogger()

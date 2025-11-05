@@ -1,7 +1,7 @@
 from typing import Dict
 from fastapi import APIRouter
 from app.api.v1.endpoints import auth, place_types_endpoints, places_endpoints, recommendations, tags_endpoints
-from app.core.config import settings
+from app.core import settings
 
 api_router = APIRouter()
 

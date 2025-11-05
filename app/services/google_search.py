@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 import requests
 from typing import List, Optional
-from app.core.config import settings
+from app.core import settings
 from app.schemas.recommendation_schemas import GooglePlaceRequest
 from app.services.google_place_response import GooglePlaceFields, GooglePlaceResponse
 
